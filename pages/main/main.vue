@@ -4,14 +4,13 @@
 			<view class="title">
 				<view>您好 {{userName}}</view>
 				<view>当前日期：{{systemDate}}</view>
-				<view>监控人数：{{monitorNum}}</view>
+				<view>今日需监控人数：{{monitorNum}}人</view>
 			</view>
 			<list>
-			    <cell v-for="monitor in myMonitorList">
-			      <view class="left">{{monitor.userName}}</view>
-				  <view class="right">{{monitor.status}}</view>
-				  <view class="left">{{monitor.address}}</view>
-				  <view class="right">{{monitor.type}}</view>
+			    <cell v-for="(monitor,index) in myMonitorList" :key="monitor.userId" @tap="getInfo(monitor.userId)">
+					<view><text>{{monitor.userName}}</text><text>----{{monitor.phoneNumber}}----</text><text>----{{monitor.status}}</text></view>
+					<view><text>{{monitor.address}}</text></view>
+					<view><text>{{monitor.type}}</text></view>
 			    </cell>
 			</list>
 		</view>
@@ -26,35 +25,11 @@
 	export default {
 		computed: mapState(['forcedLogin', 'hasLogin']),
 		onLoad() {
-			if (!this.hasLogin) {
-				uni.showModal({
-					title: '未登录',
-					content: '您未登录，需要登录后才能继续',
-					/**
-					 * 如果需要强制登录，不显示取消按钮
-					 */
-					showCancel: !this.forcedLogin,
-					success: (res) => {
-						if (res.confirm) {
-							/**
-							 * 如果需要强制登录，使用reLaunch方式
-							 */
-							if (this.forcedLogin) {
-								uni.reLaunch({
-									url: '../login/login'
-								});
-							} else {
-								uni.navigateTo({
-									url: '../login/login'
-								});
-							}
-						}
-					}
-				});
-			}
+		
 		},
 		mounted() {
-			this.getNowFormatDate()
+			this.getNowFormatDate();
+			//this.queryMonitorList(userId);
 		},
 		data(){
 			return{
@@ -62,9 +37,9 @@
 				systemDate:'',
 				monitorNum:'5',
 				myMonitorList:[
-					{userName:'张三',status:'1',address:'武汉',type:'1'},
-					{userName:'李四',status:'2',address:'南京',type:'2'},
-					{userName:'王五',status:'3',address:'西安',type:'3'}
+					{userId:"1",userName:'张三',phoneNumber:'18888888888',status:'未上报',address:'武汉',type:'发热'},
+					{userId:"2",userName:'李四',phoneNumber:'13555555555',status:'已上报',address:'南京',type:'疑似'},
+					{userId:"3",userName:'王五',phoneNumber:'13666666666',status:'已上报',address:'西安',type:'密切接触者'}
 				]
 			}
 		},
@@ -82,6 +57,23 @@
 					strDate = "0" + strDate;
 				}
 				this.systemDate = year + seperator1 + month + seperator1 + strDate;
+			},
+			getInfo(userId){
+				uni.navigateTo({
+					url: './personInfo?userId='+userId
+				})
+			},
+            queryMonitorList(userId){
+                uni.request({
+                    url: 'http://10./task/getTaskList', 
+                    data: {
+                        userId: userId
+                    },
+                    success: (res) => {
+                        console.log(res.data);
+                        this.text = 'request success';
+                    }
+                });
 			}
 		}
 	}
@@ -98,21 +90,10 @@
 		color: #000000;
 		background-color: #63B0F1;
 	}
-	
-	.left {
-		color: #000000;
-		margin-left: 25px;
-	}
-	
-	.right {
-		color: #000000;
-		margin-right: 25px;
-	}
 
 	.ul {
 		font-size: 15px;
 		color: #8f8f94;
-		margin-top: 25px;
 	}
 
 	.ul>view {

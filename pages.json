@@ -15,8 +15,19 @@
 		"style": {
 			"navigationBarTitleText": "我的"
 		}
-	}
-	],
+	},{
+            "path" : "pages/main/personInfo",
+            "style" : {
+				"navigationBarTitleText": "上报监控情况"
+			}
+        }
+        ,{
+            "path" : "pages/main/editPerson",
+            "style" : {
+				"navigationBarTitleText": "修改基本信息"
+			}
+        }
+    ],
 	"tabBar": {
 		"color": "#7a7e83",
 		"selectedColor": "#0faeff",
