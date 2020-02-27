@@ -29,7 +29,7 @@
 		},
 		mounted() {
 			this.getNowFormatDate();
-			//this.queryMonitorList(userId);
+			this.queryMonitorList(1);
 		},
 		data(){
 			return{
@@ -63,17 +63,15 @@
 					url: './personInfo?userId='+userId
 				})
 			},
-            queryMonitorList(userId){
-                uni.request({
-                    url: 'http://10./task/getTaskList', 
-                    data: {
-                        userId: userId
-                    },
-                    success: (res) => {
-                        console.log(res.data);
-                        this.text = 'request success';
+			queryMonitorList(userId){
+                this.sendRequest({
+                    url : "task/getTaskList",
+                    data : {userId: userId},
+                    hideLoading : false,
+                    success:function (res) {
+                        console.log("main:" + JSON.stringify(res));
                     }
-                });
+                })
 			}
 		}
 	}
