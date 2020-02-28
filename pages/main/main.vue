@@ -1,18 +1,31 @@
 <template>
-	<view class="content">
-		<view v-if="hasLogin" class="hello">
+	<view v-if="hasLogin" class="hello">
+		<view class="mainTop">
+			<img src="../../static/img/listTop.png"></img>
+			<view class="name">排查助手</view>
 			<view class="title">
-				<view>您好 {{userName}}</view>
-				<view>当前日期：{{systemDate}}</view>
-				<view>今日需监控人数：{{monitorNum}}人</view>
+				<view class="username"><img src="../../static/img/face.png"></img> 您好 {{userName}}</view>
+				<view class="date">当前日期：{{systemDate}}</view>
+				<view class="count">今日需核查人数：<text>{{monitorNum}}</text>人</view>
 			</view>
-			<list>
-			    <cell v-for="(monitor,index) in myMonitorList" :key="monitor.userId" @tap="getInfo(monitor.userId)">
-					<view><text>{{monitor.userName}}</text><text>----{{monitor.phoneNumber}}----</text><text>----{{monitor.status}}</text></view>
-					<view><text>{{monitor.address}}</text></view>
-					<view><text>{{monitor.type}}</text></view>
-			    </cell>
-			</list>
+		</view>
+	
+		<view class="mainList">
+		    <view v-for="(monitor,index) in myMonitorList" :key="monitor.taskId" class="mainCard">
+				<view @tap="getPatient(index)">
+				<view class="line">
+					<img src="../../static/img/username.png"></img>
+					<!-- <text class="username">患者ID{{monitor.id}}</text> -->
+					<text class="username">{{monitor.patientName}}</text>
+					<text class="mobile">{{monitor.phone}}</text>
+					<!-- todo:背景颜色需要判断 -->
+					<text v-if="monitor.status=='0'" class="state">{{monitor.patientStatusStr}}</text>
+					<text v-else class="state blue">{{monitor.patientStatusStr}}</text>
+				</view>
+				<view class="text"><text>{{monitor.nowAddress}}</text></view>
+				<view class="text"><text>{{monitor.checkStatusStr}}</text></view>
+				</view>
+		    </view>
 		</view>
 	</view>
 </template>
@@ -23,7 +36,7 @@
 	} from 'vuex'
 
 	export default {
-		computed: mapState(['forcedLogin', 'hasLogin']),
+		computed: mapState(['hasLogin']),
 		onLoad() {
 		
 		},
@@ -33,23 +46,19 @@
 		},
 		data(){
 			return{
-				userName:'吴彦祖',
+				userName:'',
 				systemDate:'',
-				monitorNum:'5',
-				myMonitorList:[
-					{userId:"1",userName:'张三',phoneNumber:'18888888888',status:'未上报',address:'武汉',type:'发热'},
-					{userId:"2",userName:'李四',phoneNumber:'13555555555',status:'已上报',address:'南京',type:'疑似'},
-					{userId:"3",userName:'王五',phoneNumber:'13666666666',status:'已上报',address:'西安',type:'密切接触者'}
-				]
+				monitorNum:'',
+				myMonitorList:[]
 			}
 		},
 		methods:{
 			getNowFormatDate() {
-				var date = new Date();
-				var seperator1 = "-";
-				var year = date.getFullYear();
-				var month = date.getMonth() + 1;
-				var strDate = date.getDate();
+				let date = new Date();
+				let seperator1 = "-";
+				let year = date.getFullYear();
+				let month = date.getMonth() + 1;
+				let strDate = date.getDate();
 				if (month >= 1 && month <= 9) {
 					month = "0" + month;
 				}
@@ -58,18 +67,22 @@
 				}
 				this.systemDate = year + seperator1 + month + seperator1 + strDate;
 			},
-			getInfo(userId){
+			getPatient(monitorIndex){
+				let patientId = this.myMonitorList[monitorIndex].id;
 				uni.navigateTo({
-					url: './personInfo?userId='+userId
+					url: './personInfo?patientId='+patientId
 				})
 			},
 			queryMonitorList(userId){
-                this.sendRequest({
+				let that = this;
+                that.sendRequest({
                     url : "task/getTaskList",
                     data : {userId: userId},
                     hideLoading : false,
                     success:function (res) {
-                        console.log("main:" + JSON.stringify(res));
+                        that.myMonitorList = res.data.patientVOList;
+                        that.monitorNum = res.data.monitorNum;
+                        that.userName = res.data.loginName;
                     }
                 })
 			}
@@ -78,23 +91,116 @@
 </script>
 
 <style>
+	image{
+		vertical-align: middle;
+	}
 	.hello {
-		display: flex;
-		flex: 1;
-		flex-direction: column;
+		width: 100%;
+		background-color: #f5f5f5;
 	}
-
-	.title {
-		color: #000000;
-		background-color: #63B0F1;
+	.mainTop {
+		width:100%;
+		height: 400rpx;
+		position: relative;
 	}
-
-	.ul {
-		font-size: 15px;
-		color: #8f8f94;
+	.mainTop>image {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width:100%;
+		height: 330rpx;
 	}
-
-	.ul>view {
-		line-height: 25px;
+	.mainTop .title {
+		position: absolute;
+		left: 40rpx;
+		bottom: 0;
+		width: 630rpx;
+		height: 138rpx;
+		background-color: #fff;
+		border-radius: 6rpx;
+		padding:20rpx;
+		box-shadow: rgba(0,0,0,.15) 0 0 20rpx;
+	}
+	.mainTop .name {
+		position: absolute;
+		left: 0;
+		top:90rpx;
+		color:#fff;
+		padding:0 40rpx;
+		width:100%;
+		font-size: 44rpx;
+	}
+	.mainTop .title image {
+		width: 40rpx;
+		height: 40rpx;
+		margin-right: 10rpx;
+		margin-top: -4rpx;
+	}
+	.mainTop .title .username {
+		font-size: 32rpx;
+		color:#333;
+		line-height: 64rpx;
+		margin-bottom: 16rpx;
+	}
+	.mainTop .title .date {
+		font-size: 28rpx;
+		float: right;
+		line-height: 52rpx;
+		color:#555;
+	}
+	.mainTop .title .count {
+		line-height: 52rpx;
+		font-size: 28rpx;
+		color:#555;
+	}
+	.mainTop .title .count text {
+		color:#1c70c9;
+	}
+	.mainList {
+		box-sizing: border-box;
+		padding:40rpx 40rpx 0 40rpx;
+		width:100%;
+	}
+	.mainCard {
+		background-color: #fff;
+		border-radius: 6rpx;
+		padding: 20rpx;
+		line-height: 54rpx;
+		margin-bottom: 24rpx;
+		box-shadow: rgba(0,0,0,.15) 0 0 20rpx;
+	}
+	.mainCard .line image {
+		width:46rpx;
+		height: 46rpx;
+		margin-right: 10rpx;
+	}
+	.mainCard .line .username {
+		font-size: 32rpx;
+		color:#555;
+		display: inline-block;
+		min-width:140rpx;
+		vertical-align: top;
+	}
+	.mainCard .line .mobile {
+		font-size: 28rpx;
+		color:#7a7a7a;
+	}
+	.mainCard .line .state {
+		float: right;
+		font-size: 26rpx;
+		line-height: 32rpx;
+		border-radius: 16rpx;
+		color:#fff;
+		padding:0 16rpx;
+		background-color: #ff5555;
+		margin-top: 11rpx;
+	}
+	.mainCard .line .state.blue {
+		background-color: #1C70C9;
+	}
+	.mainCard .text {
+		font-size: 28rpx;
+		color: #7a7a7a;
+		padding-left: 56rpx;
 	}
 </style>

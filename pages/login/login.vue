@@ -1,17 +1,25 @@
 <template>
-	<view class="content">
-		<view class="input-group">
-			<view class="input-row border">
-				<text class="title">手机号：</text>
+	<view class="loginContain">
+		<view class="loginTop">
+			<image src="../../static/img/header.png" mode=""></image>
+			<image src="../../static/img/logo.png" mode=""></image>
+		</view>
+		<view class="loginTip">
+			<view>欢迎使用核查宝典小程序</view>
+			<view>请先登录</view>
+		</view>
+		<view class="inputGroup">
+			<view class="inputRow">
+				<image src="../../static/img/loginUser.png" mode=""></image>
 				<m-input class="m-input" type="text" clearable focus v-model="account" placeholder="请输入手机号"></m-input>
 			</view>
-			<view class="input-row">
-				<text class="title">验证码：</text>
+			<view class="inputRow">
+				<image src="../../static/img/lock.png" mode=""></image>
 				<m-input type="text" v-model="password" placeholder="请输入验证码" @tap="bindGetCode"></m-input>
-				<button>获取验证码</button>
+				<view class="code">获取验证码</view>
 			</view>
 		</view>
-		<view class="btn-row">
+		<view class="btnRow">
 			<button type="primary" class="primary" @tap="bindLogin">登录</button>
 		</view>
 	</view>
@@ -76,14 +84,14 @@
 				 * 客户端对账号信息进行一些必要的校验。
 				 * 实际开发中，根据业务需要进行处理，这里仅做示例。
 				 */
-				if (this.account.length < 11) {
+				if (this.account.length != 11) {
 					uni.showToast({
 						icon: 'none',
 						title: '请输入正确的手机号'
 					});
 					return;
 				}
-				if (this.password.length < 6) {
+				if (this.password.length != 6) {
 					uni.showToast({
 						icon: 'none',
 						title: '请输入验证码'
@@ -182,49 +190,71 @@
 </script>
 
 <style>
-	.action-row {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
+	.loginContain {
+		width:100%;
+		background-color: #f5f5f5;
 	}
-
-	.action-row navigator {
-		color: #007aff;
-		padding: 0 10px;
-	}
-
-	.oauth-row {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-	}
-
-	.oauth-image {
+	.loginTop {
+		width:100%;
+		height: 324rpx;
 		position: relative;
-		width: 50px;
-		height: 50px;
-		border: 1px solid #dddddd;
-		border-radius: 50px;
-		margin: 0 20px;
-		background-color: #ffffff;
 	}
-
-	.oauth-image image {
-		width: 30px;
-		height: 30px;
-		margin: 10px;
+	.loginTop image:first-child {
+		width:100%;
+		height: 324rpx;
 	}
-
-	.oauth-image button {
+	.loginTop image:last-child {
+		width:220rpx;
+		height: 220rpx;
 		position: absolute;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		opacity: 0;
+		left: 50%;
+		bottom:-80rpx;
+		margin-left: -110rpx;
+	}
+	.loginTip {
+		text-align: center;
+		margin:100rpx 0 50rpx 0;
+	}
+	.loginTip view {
+		font-size: 28rpx;
+		color:#7a7a7a;
+		line-height: 40rpx;
+	}
+	.inputGroup {
+		padding:0 85rpx;
+	}
+	.inputRow {
+		display: flex;
+		border-bottom: 1rpx solid #e5e5e5;
+		line-height: 74rpx;
+		height: 74rpx;
+		margin-bottom: 40rpx;
+	}
+	.inputRow image {
+		width:38rpx;
+		height: 44rpx;
+		vertical-align: middle;
+		margin:10rpx 10rpx 0 10rpx;
+	}
+	.inputRow input {
+		font-size: 28rpx;
+		color:#7a7a7a;
+	}
+	.inputRow .code {
+		font-size: 28rpx;
+		color:#2143c6;
+		text-align: center;
+	}
+	.btnRow {
+		padding:0 85rpx;
+	}
+	.btnRow button {
+		width:100%;
+		height: 80rpx;
+		line-height: 80rpx;
+		text-align: center;
+		font-size: 32rpx;
+		color:#fff;
+		background-color: #3753BB;
 	}
 </style>

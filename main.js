@@ -15,6 +15,43 @@ const app = new Vue({
 })
 app.$mount()
 
+const getUserInfo = () => {
+  return new Promise((resolve, reject) => {
+    uni.getProvider({
+      service: "oauth",
+      success: res => {
+        // console.log(res);
+        const provider = res.provider[0];
+        uni.login({
+          provider,
+          success: loginRes => {
+            // console.log(loginRes);
+            const code = loginRes.code;
+            const appid = "这里填写小程序ID";
+            const secret = "这里填写小程序密钥";
+            const url = 'https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code';
+            uni.request({
+              url,
+              success: dataRes => {
+                // console.log(dataRes);
+                uni.getUserInfo({
+                  provider,
+                  withCredentials: true,
+                  success: infoRes => {
+                    // console.log(infoRes);
+                    // 返回openId、用户信息、服务商等
+                    resolve({...dataRes.data, ...infoRes.userInfo, provider});
+                  }
+                });
+              }
+            });
+          },
+        });
+      }
+    });
+  });
+};
+
 Vue.prototype.siteBaseUrl="http://10.3.69.25:8080/";
 
 Vue.prototype.sendRequest = function(param){
@@ -46,7 +83,7 @@ Vue.prototype.sendRequest = function(param){
         uni.showLoading({title:'加载中...'});
     }
 
-    console.log("网络请求start");
+    //console.log("网络请求start");
     //网络请求
     uni.request({
         url: requestUrl,
@@ -54,7 +91,7 @@ Vue.prototype.sendRequest = function(param){
         header: header,
         data: data,
         success: res => {
-            console.log("网络请求success:" + JSON.stringify(res));
+            //console.log("网络请求success:" + JSON.stringify(res));
             if (res.statusCode && res.statusCode != 200) {//api错误
                 uni.showModal({
                     content:"请求成功---" + res.errMsg
@@ -64,14 +101,14 @@ Vue.prototype.sendRequest = function(param){
             typeof param.success == "function" && param.success(res.data);
         },
         fail: (e) => {
-            console.log("网络请求fail:" + JSON.stringify(e));
+            //console.log("网络请求fail:" + JSON.stringify(e));
             uni.showModal({
                 content:"请求失败---" + e.errMsg
             });
             typeof param.fail == "function" && param.fail(e.data);
         },
         complete: () => {
-            console.log("网络请求complete");
+            //console.log("网络请求complete");
             if (!hideLoading) {
                 uni.hideLoading();
             }
