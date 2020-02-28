@@ -8,12 +8,12 @@
 	},{
 		"path": "pages/main/main",
 		"style": {
-			"navigationBarTitleText": "疫情上报小程序"
+			"navigationBarTitleText": "排查助手小程序"
 		}
 	},  {
 		"path": "pages/user/user",
 		"style": {
-			"navigationBarTitleText": "我的"
+			"navigationBarTitleText": "统计分析"
 		}
 	},{
 		"path" : "pages/main/personInfo",
@@ -28,7 +28,7 @@
 	},{
 		"path" : "pages/main/uploadInfo",
 		"style" : {
-			"navigationBarTitleText": "上报核查信息"
+			"navigationBarTitleText": "上报排查信息"
 		}
 	}
     ],

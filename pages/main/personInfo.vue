@@ -8,25 +8,25 @@
 			</view>
 			<view class="step">
 				<img src="../../static/img/2.png" mode=""></img>
-				<view>上报核查情况</view>
+				<view>上报排查情况</view>
 			</view>
 		</view>
 		<view class="personChange" @tap="editInfo(patientId)">信息有误，我要修改</view>
 		<view class="personInfoList">
 			<view><text>姓名</text><text>{{patientInfo.patientName}}</text></view>
-			<view><text>类型</text><text>{{patientInfo.checkStatusStr}}</text></view>
+			<!-- <view><text>类型</text><text>{{patientInfo.checkStatusStr}}</text></view> -->
 			<view><text>性别</text><text>{{patientInfo.patientSex=='1'?'男':'女'}}</text></view>
 			<view><text>手机号码</text><text>{{patientInfo.phone}}</text></view>
 			<view><text>证件号码</text><text>{{patientInfo.idNum}}</text></view>
 		</view>
 		<view class="personInfoList">
 			<view><text>现可能地址</text><text>{{patientInfo.nowAddress}}</text></view>
-			<view><text>确诊上报单位</text><text>{{patientInfo.nowAddressType}}</text></view>
+			<view><text>确诊上报单位</text><text>{{patientInfo.superioLeader}}</text></view>
 			<view><text>现可能地址坐标</text><text>{{patientInfo.nowPosition}}</text></view>
 		</view>
 		<view class="personInfoBtn">
 			<button class="primaryBtn" @tap="goUpload(patientId)">确认信息无误</button>
-			<button class="defaultBtn">人员失联</button>
+			<button class="defaultBtn" @tap="isLost()">人员失联</button>
 		</view>
 	</view>
 </template>
@@ -36,9 +36,12 @@
 		onLoad(options) {
 			this.patientId = options.patientId;
 		},
-		mounted() {
+		onShow() {
 			this.getPatientInfo(this.patientId);
 		},
+		// mounted() {
+		// 	this.getPatientInfo(this.patientId);
+		// },
 		data() {
 			return {
 				patientId:"",
@@ -54,8 +57,6 @@
 				    hideLoading : true,
 				    success:function (res) {
 						that.patientInfo = res.data;
-						console.log(that.patientInfo);
-						console.log(that.patientInfo.patientName);
 				    }
 				})
 			},
@@ -68,6 +69,31 @@
 				uni.navigateTo({
 					url: './uploadInfo?patientId='+patientId
 				})
+			},
+			isLost(){
+				let that = this;
+				uni.showModal({
+				    title: '提示',
+				    content: '是否直接上报此人已失联',
+				    success: function (res) {
+				        if (res.confirm) {
+				            that.sendRequest({
+								method : "POST",
+				                url : "task/lostContactPatientInfo",
+				                data : {id: that.patientId},
+				                hideLoading : true,
+				                success:function (res) {
+									uni.showToast({
+										title:"上报成功"
+									})
+									that.getPatientInfo(that.patientId);
+				                }
+				            })
+				        } else if (res.cancel) {
+				            console.log('用户点击取消');
+				        }
+				    }
+				});
 			}
 		}
 	}

@@ -1,22 +1,23 @@
 <template>
 	<view class="loginContain">
 		<view class="loginTop">
-			<image src="../../static/img/header.png" mode=""></image>
-			<image src="../../static/img/logo.png" mode=""></image>
+			<img src="../../static/img/header.png" mode=""></img>
+			<img src="../../static/img/logo.png" mode=""></img>
 		</view>
 		<view class="loginTip">
-			<view>欢迎使用核查宝典小程序</view>
+			<view>欢迎使用排查助手小程序</view>
 			<view>请先登录</view>
 		</view>
 		<view class="inputGroup">
 			<view class="inputRow">
-				<image src="../../static/img/loginUser.png" mode=""></image>
-				<m-input class="m-input" type="text" clearable focus v-model="account" placeholder="请输入手机号"></m-input>
+				<img src="../../static/img/loginUser.png" mode=""></img>
+				<m-input class="m-input" type="text" clearable focus v-model="phone" placeholder="请输入手机号"></m-input>
 			</view>
 			<view class="inputRow">
-				<image src="../../static/img/lock.png" mode=""></image>
-				<m-input type="text" v-model="password" placeholder="请输入验证码" @tap="bindGetCode"></m-input>
-				<view class="code">获取验证码</view>
+				<img src="../../static/img/lock.png" mode=""></img>
+				<m-input type="text" v-model="checkCode" placeholder="请输入验证码"></m-input>
+				<view v-if="isShowGetCode" class="code" @tap="bindGetCode()">获取验证码</view>
+				<view v-else class="code">{{countdown}}s后可重试</view>
 			</view>
 		</view>
 		<view class="btnRow">
@@ -37,40 +38,32 @@
 		components: {
 			mInput
 		},
+		computed: mapState(['forcedLogin','hasLogin']),
 		data() {
 			return {
 				providerList: [],
 				hasProvider: false,
-				account: '18829011778',
-				password: '778899',
+				phone: '',
+				checkCode: '',
 				positionTop: 0,
 				isDevtools: false,
+				openId:'',
+				countdown:60,
+				timer:'',
+				isShowGetCode:true
 			}
 		},
-		computed: mapState(['forcedLogin']),
 		methods: {
-			...mapMutations(['login']),
-			initProvider() {
-				const filters = ['weixin', 'qq', 'sinaweibo'];
-				uni.getProvider({
-					service: 'oauth',
-					success: (res) => {
-						if (res.provider && res.provider.length) {
-							for (let i = 0; i < res.provider.length; i++) {
-								if (~filters.indexOf(res.provider[i])) {
-									this.providerList.push({
-										value: res.provider[i],
-										image: '../../static/img/' + res.provider[i] + '.png'
-									});
-								}
-							}
-							this.hasProvider = true;
-						}
-					},
-					fail: (err) => {
-						console.error('获取服务供应商失败：' + JSON.stringify(err));
-					}
-				});
+			countDown(){
+			  const self = this
+			  this.timer =  setInterval(() =>{
+				 self.countdown--
+				 if(self.countdown === 0){
+				   clearInterval(self.timer)
+				   self.countdown = 60
+				   self.isShowGetCode = true
+				 }
+			   },1000)
 			},
 			initPosition() {
 				/**
@@ -84,107 +77,132 @@
 				 * 客户端对账号信息进行一些必要的校验。
 				 * 实际开发中，根据业务需要进行处理，这里仅做示例。
 				 */
-				if (this.account.length != 11) {
+				if (this.phone.length != 11) {
 					uni.showToast({
 						icon: 'none',
 						title: '请输入正确的手机号'
 					});
 					return;
 				}
-				if (this.password.length != 6) {
+				if (this.checkCode.length != 6) {
 					uni.showToast({
 						icon: 'none',
 						title: '请输入验证码'
 					});
 					return;
 				}
-				/**
-				 * 下面简单模拟下服务端的处理
-				 * 检测用户账号密码是否在已注册的用户列表中
-				 * 实际开发中，使用 uni.request 将账号信息发送至服务端，客户端在回调函数中获取结果信息。
-				 */
-				const data = {
-					account: this.account,
-					password: this.password
+				let data = {
+					checkCode: this.checkCode,
+					openId: this.openId,
+					phone: this.phone
 				};
-				if (true) {
-					this.toMain(this.account);
-				} else {
-					uni.showToast({
-						icon: 'none',
-						title: '用户账号或密码不正确',
-					});
-				}
+				let that = this;
+				this.sendRequest({
+					method : "POST",
+					url : "login",
+					data : data,
+					hideLoading : false,
+					success:function (res) {
+						console.log(res)
+						if (res.msg==='成功') {
+							that.$store.dispatch('changeFun',data);
+							that.toMain(res.data);
+						} else {
+							uni.showToast({
+								icon: 'none',
+								title: res.msg,
+							});
+						}
+					}
+				});
 			},
 			bindGetCode(){
-				if (this.account.length < 11) {
+				if (this.phone.length < 11) {
 					uni.showToast({
 						icon: 'none',
 						title: '请输入正确的手机号'
 					});
 					return;
-				}
-			},
-			oauth(value) {
-				uni.login({
-					provider: value,
-					success: (res) => {
-						uni.getUserInfo({
-							provider: value,
-							success: (infoRes) => {
-								/**
-								 * 实际开发中，获取用户信息后，需要将信息上报至服务端。
-								 * 服务端可以用 userInfo.openId 作为用户的唯一标识新增或绑定用户信息。
-								 */
-								this.toMain(infoRes.userInfo.nickName);
-							},
-							fail() {
-								uni.showToast({
-									icon: 'none',
-									title: '登陆失败'
-								});
-							}
+				};
+				this.countDown();
+				this.isShowGetCode = false;
+				this.sendRequest({
+					method : "POST",
+					url : "login/sendSms",
+					data : {phone:this.phone},
+					hideLoading : false,
+					success:function (res) {
+						uni.showToast({
+							icon: 'none',
+							title: res.msg,
 						});
-					},
-					fail: (err) => {
-						console.error('授权登录失败：' + JSON.stringify(err));
 					}
 				});
 			},
-			getUserInfo({
-				detail
-			}) {
-				if (detail.userInfo) {
-					this.toMain(detail.userInfo.nickName);
-				} else {
-					uni.showToast({
-						icon: 'none',
-						title: '登陆失败'
-					});
-				}
-			},
-			toMain(userName) {
-				this.login(userName);
+			toMain(userId) {
 				/**
 				 * 强制登录时使用reLaunch方式跳转过来
 				 * 返回首页也使用reLaunch方式
 				 */
+				let data = {
+					userId:userId,
+				};
 				if (this.forcedLogin) {
+					this.$store.dispatch('changeFun',data);
 					uni.reLaunch({
 						url: '../main/main',
 					});
 				} else {
 					uni.navigateBack();
 				}
-
-			}
+			},
+			checkOpenId(){
+				let postData = {
+					checkCode: this.checkCode,
+					openId: this.openId,
+					phone: this.phone
+				};
+				let that = this;
+				this.sendRequest({
+					method : "POST",
+					url : "login",
+					data : postData,
+					hideLoading : false,
+					success:function (res) {
+						if(res.msg==='请使用验证码登录'){
+							return;
+						}else{
+							that.$store.dispatch('changeFun',res.data);
+							that.toMain(res.data);
+						}
+					}
+				});
+			},
+			getCode(){
+				let that = this;
+				uni.login({
+					success: res => {
+						console.log(res.code);
+						this.sendRequest({
+							method : "POST",
+							url : "login/getOpenIdFromWX",
+							data : {code:res.code},
+							hideLoading : false,
+							success:function (res) {
+								// console.log(res.data)
+								that.openId = res.data;
+								that.checkOpenId(res.data);
+							}
+						});
+					}
+				});
+			},
 		},
 		onReady() {
 			this.initPosition();
-			this.initProvider();
-			// #ifdef MP-WEIXIN
-			this.isDevtools = uni.getSystemInfoSync().platform === 'devtools';
-			// #endif
+		},
+		mounted(){
+			this.getCode();
 		}
 	}
 </script>

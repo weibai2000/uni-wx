@@ -8,14 +8,14 @@
 			</view>
 			<view class="step">
 				<image src="../../static/img/2-active.png" mode=""></image>
-				<view>上报核查情况</view>
+				<view>上报排查情况</view>
 			</view>
 		</view>
 		<view class="editForm">
 			<view class="formItem">
 				<view class="label"><text>*</text>状态</view>
 				<view class="radio" v-for="(item, index) in statusOptions">
-					<radio :key="item.name" v-model="patientInfo.checkStatus" :checked="item.checked">{{item.value}}</radio>
+					<radio :key="item.name" v-model="item.name" :checked="item.checked" @tap="changeStatus(item.name)">{{item.value}}</radio>
 				</view>
 			</view>
 		</view>
@@ -29,7 +29,7 @@
 			<view class="formItem">
 				<view class="label"><text>*</text>现地址类型</view>
 				<view class="radio" v-for="(item, index) in typeOptions">
-					<radio :key="item.name" v-model="patientInfo.nowAddressType" :checked="item.checked">{{item.value}}</radio>
+					<radio :key="item.name" v-model="item.name" :checked="item.checked" @tap="changeType(item.name)">{{item.value}}</radio>
 				</view>
 			</view>
 		</view>
@@ -62,17 +62,21 @@
 				patientInfo:"",
 				//是否是修改状态 默认为false不修改，点击修改则是true修改
 				modifyFlag:false,
-				location: '中国-湖北-武汉-江夏',
 				statusOptions: [
-					{name: '1', value: '确证', checked: true},
-					{name: '2', value: '死亡'}
+					{name: '0', value: '正常'},
+					{name: '1', value: '确诊'},
+					{name: '4', value: '隔离'},
+					{name: '2', value: '失联'},
+					{name: '3', value: '死亡'}
 				],
 				typeOptions: [
-					{name: '1', value: '定点医院', checked: true},
+					{name: '1', value: '定点医院'},
 					{name: '2', value: '方舱医院'},
 					{name: '3', value: '隔离点'},
 					{name: '4', value: '居家'}
-				]
+				],
+				typeVal: '', //该条数据用来传值
+				statusVal: ''
 			}
 		},
 		methods: {
@@ -84,10 +88,30 @@
 				    hideLoading : true,
 				    success:function (res) {
 						that.patientInfo = res.data;
+						//加载页面 同时填充选择框的值
+						that.setRadio(res.data);
 				    }
 				})
 			},
 			submitUpload(){
+				if(this.statusVal==""){
+					uni.showToast({
+						title:"请选择人员状态"
+					})
+					return;
+				}
+				if(this.patientInfo.nowAddress==""){
+					uni.showToast({
+						title:"请填写现住址"
+					})
+					return;
+				}
+				if(this.typeVal==""){
+					uni.showToast({
+						title:"请选择现地址类型"
+					})
+					return;
+				}
 				let that = this;
 				console.log(that.patientInfo);
 				that.sendRequest({
@@ -98,14 +122,121 @@
 				    success:function (res) {
 						if(res.msg==="success"){
 							uni.showToast({
-								title:"保存成功"
+								title:"上报成功"
 							})
 							setTimeout(() => {
-								uni.navigateBack();
+								let pages = getCurrentPages(); // 当前页面
+								let beforePage = pages[pages.length - 2];
+								uni.navigateBack({
+									success: function() {
+										 beforePage.onShow() // 执行前一个页面的方法
+									 }
+								});
 							}, 600);
 						}
 				    }
 				})
+			},
+			changeType(name){
+				let that = this;
+				let nso = that.typeOptions.map(item => {
+					if (item.name == name) {
+						that.typeVal = name
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.typeOptions = nso;
+				that.patientInfo.nowAddressType = that.typeVal;
+			},
+			changeStatus(name){
+				let that = this;
+				let nso = that.statusOptions.map(item => {
+					if (item.name == name) {
+						that.statusVal = name
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.statusOptions = nso;
+				that.patientInfo.patientStatus = that.statusVal;
+			},
+			setRadio(data){
+				let that = this;
+				let optionOne = that.statusOptions.map(item => {
+					if (item.name == data.patientStatus) {
+						that.statusVal = data.patientStatus
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.statusOptions = optionOne;
+				that.statusVal = data.patientStatus;
+				let optionTwo = that.typeOptions.map(item => {
+					if (item.name == data.nowAddressType) {
+						that.typeVal = data.nowAddressType
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.typeOptions = optionTwo;
+				that.typeVal = data.nowAddressType;
+			},
+			getAuthorizeInfo(){
+				const that = this;
+				uni.authorize({
+					scope: 'scope.userLocation',
+					success() { // 允许授权
+						that.getLocationInfo();
+					},
+					fail(){    // 拒绝授权
+						that.openConfirm();
+						console.log("你拒绝了授权，无法获得周边信息")
+					}
+				})
+			},
+			// 获取地理位置
+			getLocationInfo(){  
+				uni.getLocation({
+					type: 'wgs84',
+					success (res) {
+						console.log(res);
+					}
+				});
+			},
+			// 再次获取授权
+			// 当用户第一次拒绝后再次请求授权
+			openConfirm(){
+				uni.showModal({
+					title: '请求授权当前位置',
+					content: '需要获取您的地理位置，请确认授权',
+					success: (res)=> {
+						if (res.confirm) {
+							uni.openSetting();// 打开地图权限设置
+						} else if (res.cancel) {
+							uni.showToast({
+								title: '你拒绝了授权，无法获得周边信息',
+								icon: 'none',
+								duration: 1000
+							})
+						}
+					}
+				});
+			},
+			onShow() {
+				// 动态设置标题
+				// uni.setNavigationBarTitle({
+				//     title: this.$t('买金'),
+				// })
+			   this.getAuthorizeInfo();
 			}
 		}
 	}

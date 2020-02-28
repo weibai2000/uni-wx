@@ -8,14 +8,14 @@
 				</view>
 				<view class="formItem">
 					<view class="label">状态</view>
-					<view class="radio" v-for="(item, index) in statusOptions">
-						<radio :key="item.name" v-model="item.name" :checked="item.checked">{{item.value}}</radio>
+					<view class="radio" v-for="(item, index) in checkOptions">
+						<radio :key="item.name" v-model="item.name" :checked="item.checked" @tap="changeCheck(item.name)">{{item.value}}</radio>
 					</view>
 				</view>
 				<view class="formItem">
 					<view class="label">性别</view>
 					<view class="radio" v-for="(item, index) in sexOptions">
-						<radio :key="item.name" v-model="item.name" :checked="item.checked">{{item.value}}</radio>
+						<radio :key="item.name" v-model="item.name" :checked="item.checked" @tap="changeSex(item.name)">{{item.value}}</radio>
 					</view>
 				</view>
 				<view class="formItem">
@@ -32,7 +32,7 @@
 				</view>
 				<view class="formItem">
 					<view class="label">确诊上报单位</view>
-					<input v-model="patientInfo.nowAddressType"></input>
+					<input v-model="patientInfo.superioLeader"></input>
 				</view>
 				<view class="formItem">
 					<view class="label">现可能地址坐标</view>
@@ -56,17 +56,19 @@
 			return {
 				patientId:'',
 				patientInfo:{},
-				statusOptions: [
+				checkOptions: [
 				  { name: '0', value: '正常' },
 				  { name: '1', value: '确诊' },
-				  { name: '2', value: '疑似' },
-				  { name: '3', value: '发热' },
-				  { name: '4', value: '密切接触' }
+				  { name: '2', value: '发热' },
+				  { name: '3', value: '疑似' },
+				  { name: '4', value: '密切接触者' }
 				],
 				sexOptions: [
 				  { name: '1', value: '男' },
 				  { name: '2', value: '女' }
-				]
+				],
+				checkVal: '', //该条数据用来传值
+				sexVal: ''
 			}
 		},
 		methods: {
@@ -78,6 +80,8 @@
 				    hideLoading : true,
 				    success:function (res) {
 						that.patientInfo = res.data;
+						//加载页面 同时填充选择框的值
+						that.setRadio(res.data);
 				    }
 				})
 			},
@@ -91,14 +95,73 @@
 				    success:function (res) {
 						if(res.msg==="成功"){
 							uni.showToast({
-								title:"保存成功"
+								title:"上报成功"
 							})
 							setTimeout(() => {
-								uni.navigateBack();
+								let pages = getCurrentPages(); // 当前页面
+								let beforePage = pages[pages.length - 2];
+								uni.navigateBack({
+									success: function() {
+										 beforePage.onShow() // 执行前一个页面的方法
+									 }
+								});
 							}, 600);
 						}
 				    }
 				})
+			},
+			changeCheck(name){
+				let that = this;
+				var nso = that.checkOptions.map(item => {
+					if (item.name == name) {
+						that.checkVal = name
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.checkOptions = nso;
+				that.patientInfo.checkStatus = that.checkVal;
+			},
+			changeSex(name){
+				let that = this;
+				var nso = that.sexOptions.map(item => {
+					if (item.name == name) {
+						that.sexVal = name
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.sexOptions = nso;
+				that.patientInfo.patientSex = that.sexVal;
+			},
+			setRadio(data){
+				let that = this;
+				let optionOne = that.checkOptions.map(item => {
+					if (item.name == data.checkStatus) {
+						that.statusVal = data.checkStatus
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.checkOptions = optionOne;
+				that.statusVal = data.checkStatus;
+				let optionTwo = that.sexOptions.map(item => {
+					if (item.name == data.patientSex) {
+						that.typeVal = data.patientSex
+						item.checked = true
+					} else {
+						item.checked = false
+					}
+					return item
+				})
+				that.sexOptions = optionTwo;
+				that.typeVal = data.patientSex;
 			}
 		}
 	}

@@ -15,44 +15,8 @@ const app = new Vue({
 })
 app.$mount()
 
-const getUserInfo = () => {
-  return new Promise((resolve, reject) => {
-    uni.getProvider({
-      service: "oauth",
-      success: res => {
-        // console.log(res);
-        const provider = res.provider[0];
-        uni.login({
-          provider,
-          success: loginRes => {
-            // console.log(loginRes);
-            const code = loginRes.code;
-            const appid = "这里填写小程序ID";
-            const secret = "这里填写小程序密钥";
-            const url = 'https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code';
-            uni.request({
-              url,
-              success: dataRes => {
-                // console.log(dataRes);
-                uni.getUserInfo({
-                  provider,
-                  withCredentials: true,
-                  success: infoRes => {
-                    // console.log(infoRes);
-                    // 返回openId、用户信息、服务商等
-                    resolve({...dataRes.data, ...infoRes.userInfo, provider});
-                  }
-                });
-              }
-            });
-          },
-        });
-      }
-    });
-  });
-};
-
-Vue.prototype.siteBaseUrl="http://10.3.69.25:8080/";
+// Vue.prototype.siteBaseUrl="http://10.3.69.25:8080/";
+Vue.prototype.siteBaseUrl="https://hcbd.chutianyun.gov.cn/";
 
 Vue.prototype.sendRequest = function(param){
     var _self = this,

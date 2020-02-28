@@ -1,17 +1,20 @@
 <template>
-	<view v-if="hasLogin" class="hello">
+	<view class="hello">
 		<view class="mainTop">
 			<img src="../../static/img/listTop.png"></img>
 			<view class="name">排查助手</view>
 			<view class="title">
 				<view class="username"><img src="../../static/img/face.png"></img> 您好 {{userName}}</view>
 				<view class="date">当前日期：{{systemDate}}</view>
-				<view class="count">今日需核查人数：<text>{{monitorNum}}</text>人</view>
+				<view class="count">今日需排查人数：<text>{{monitorNum}}</text>人</view>
 			</view>
 		</view>
 	
 		<view class="mainList">
-		    <view v-for="(monitor,index) in myMonitorList" :key="monitor.taskId" class="mainCard">
+			<view v-if="monitorNum==0">
+				<text style="text-align: center;">暂无需要排查的人员</text>
+			</view>
+		    <view v-else v-for="(monitor,index) in myMonitorList" :key="monitor.taskId" class="mainCard">
 				<view @tap="getPatient(index)">
 				<view class="line">
 					<img src="../../static/img/username.png"></img>
@@ -19,8 +22,8 @@
 					<text class="username">{{monitor.patientName}}</text>
 					<text class="mobile">{{monitor.phone}}</text>
 					<!-- todo:背景颜色需要判断 -->
-					<text v-if="monitor.status=='0'" class="state">{{monitor.patientStatusStr}}</text>
-					<text v-else class="state blue">{{monitor.patientStatusStr}}</text>
+					<text v-if="monitor.isReported=='0'" class="state">{{monitor.isReportedStr}}</text>
+					<text v-else class="state blue">{{monitor.isReportedStr}}</text>
 				</view>
 				<view class="text"><text>{{monitor.nowAddress}}</text></view>
 				<view class="text"><text>{{monitor.checkStatusStr}}</text></view>
@@ -36,20 +39,21 @@
 	} from 'vuex'
 
 	export default {
-		computed: mapState(['hasLogin']),
+		computed: mapState(['hasLogin','userId']),
 		onLoad() {
 		
 		},
 		mounted() {
 			this.getNowFormatDate();
-			this.queryMonitorList(1);
+			this.queryMonitorList(this.userId);
 		},
 		data(){
 			return{
 				userName:'',
 				systemDate:'',
 				monitorNum:'',
-				myMonitorList:[]
+				myMonitorList:[],
+				monitorNum:''
 			}
 		},
 		methods:{
@@ -83,6 +87,7 @@
                         that.myMonitorList = res.data.patientVOList;
                         that.monitorNum = res.data.monitorNum;
                         that.userName = res.data.loginName;
+                        that.monitorNum = res.data.monitorNum;
                     }
                 })
 			}
