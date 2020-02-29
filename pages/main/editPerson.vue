@@ -95,7 +95,7 @@
 				    success:function (res) {
 						if(res.msg==="成功"){
 							uni.showToast({
-								title:"上报成功"
+								title:"修改成功"
 							})
 							setTimeout(() => {
 								let pages = getCurrentPages(); // 当前页面

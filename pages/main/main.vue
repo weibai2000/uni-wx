@@ -4,9 +4,9 @@
 			<img src="../../static/img/listTop.png"></img>
 			<view class="name">排查助手</view>
 			<view class="title">
-				<view class="username"><img src="../../static/img/face.png"></img> 您好 {{userName}}</view>
+				<view class="username"><img src="../../static/img/face.png"></img> 您好 {{userName}}，同心战疫，湖北加油！</view>
 				<view class="date">当前日期：{{systemDate}}</view>
-				<view class="count">今日需排查人数：<text>{{monitorNum}}</text>人</view>
+				<view class="count">今日需排查人数：<text style="font-size: 25px;">{{monitorNum}}</text>人</view>
 			</view>
 		</view>
 	

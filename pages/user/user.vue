@@ -5,7 +5,7 @@
 			<view class="name">统计分析</view>
 			<view class="title">
 				<view class="username">您好 {{loginName}}</view>
-				<view class="count">累计完成的排查数：<text>{{statisticTotal}}</text>人</view>
+				<view class="count">您累计完成的排查数：<text style="font-size: 25px;">{{statisticTotal}}</text>人，感谢您的付出！</view>
 			</view>
 		</view>
 		
