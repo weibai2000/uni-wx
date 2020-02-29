@@ -24,14 +24,12 @@
 	export default {
 		computed: mapState(['userId']),
 		onLoad(){
-			this.getDateList();
-			// this.getStatistic();
+			this.getStatistic();
 		},
 		data() {
 			return {
 				loginName:'',
 				statisticTotal:'',
-				Xdata:'',
 				ec:{
 					option: {
 					    tooltip: {
@@ -67,7 +65,7 @@
 					    },
 					    series: [
 					        {
-					            name: '已完成数',
+					            name: '未完成数',
 					            type: 'bar',
 					            stack: '总量',
 								barWidth: '40%',
@@ -75,10 +73,10 @@
 					                show: true,
 					                position: 'insideRight'
 					            },
-					            data: [10, 8, 9, 4, 7, 8, 9]
+					            data: [0, 0, 0, 0, 0, 0, 0]
 					        },
 					        {
-					            name: '未完成数',
+					            name: '已完成数',
 					            type: 'bar',
 					            stack: '总量',
 								barWidth: '20%',
@@ -86,7 +84,7 @@
 					                show: true,
 					                position: 'insideRight'
 					            },
-					            data: [3, 2, 2, 4, 1, 2, 2]
+					            data: [0, 0, 0, 0, 0, 0, 0]
 					        }
 					    ]
 					}
@@ -106,8 +104,45 @@
 				    success:function (res) {
 						that.loginName = res.data.loginName;
 						that.statisticTotal = res.data.statisticTotal;
-						console.log(res);
-				    }
+						var xArr1 = res.data.weekCount.map(item => { // 已完成数组
+							return item[0]
+						})
+						var xArr2 = res.data.weekCount.map(item => { // 未完成数组
+							return item[1]
+						})
+						var getData = { // 用于覆盖原有的options中的数据
+								series: [
+								{
+									name: '未完成数',
+									type: 'bar',
+									stack: '总量',
+									barWidth: '40%',
+									label: {
+										show: true,
+										position: 'insideRight'
+									},
+									data: xArr1
+								},
+								{
+									name: '已完成数',
+									type: 'bar',
+									stack: '总量',
+									barWidth: '20%',
+									label: {
+										show: true,
+										position: 'insideRight'
+									},
+									data: xArr2
+								}
+							],
+							xAxis: {
+								type: 'category',
+								data: that.getDateList()
+							}
+						}
+						var option = Object.assign({}, that.ec.option, getData);
+						that.ec = {option};
+					}
 				})
 			},
 			getDateList(){
@@ -117,15 +152,14 @@
 				var date = [];
 				var data = [Math.random() * 300];
 				var time = new Date(base);
-				date.push([time.getFullYear(), time.getMonth() + 1, time.getDate()].join('/'));
+				date.push([time.getMonth() + 1, time.getDate()].join('-'));
 				for (var i = 1; i <7; i++) {
 					var now = new Date(base -= oneDay);
-					date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
+					date.push([now.getMonth() + 1, now.getDate()].join('-'));
 					data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
 				}
 				var newdate = date.reverse();
-				this.Xdata = newdate;
-				console.log(newdate);
+				return newdate;
 			},
 			getFormatDate() {
 				let date = new Date();

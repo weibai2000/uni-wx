@@ -94,7 +94,6 @@
 				});  
 				that.amapPlugin.getRegeo({  
 					success: (data) => {  
-						console.log(data)  
 						that.patientInfo.reportingPosition = data[0].name;
 						uni.hideLoading();  
 					}  
@@ -134,7 +133,6 @@
 				}
 				this.getLocationInfo();
 				let that = this;
-				console.log(that.patientInfo);
 				that.sendRequest({
 					method : "POST",
 				    url : "task/submitPatientReport",
@@ -231,7 +229,6 @@
 					type: 'wgs84',
 					success (res) {
 						that.patientInfo.reportingPosition = "(经度："+res.longitude+"，纬度："+res.latitude+")";
-						console.log(that.patientInfo.reportingPosition);
 					}
 				});
 			},

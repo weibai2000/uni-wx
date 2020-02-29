@@ -103,7 +103,6 @@
 					data : data,
 					hideLoading : false,
 					success:function (res) {
-						console.log(res)
 						if (res.msg==='成功') {
 							that.$store.dispatch('changeFun',data);
 							that.toMain(res.data);
@@ -182,14 +181,12 @@
 				let that = this;
 				uni.login({
 					success: res => {
-						console.log(res.code);
 						this.sendRequest({
 							method : "POST",
 							url : "login/getOpenIdFromWX",
 							data : {code:res.code},
 							hideLoading : false,
 							success:function (res) {
-								// console.log(res.data)
 								that.openId = res.data;
 								that.checkOpenId(res.data);
 							}
