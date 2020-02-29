@@ -103,14 +103,18 @@
 	.personInfoContain {
 		width: 100%;
 		background-color: #f5f5f5;
+		padding-top: 152rpx;
 	}
 	.personInfo {
+		position: fixed;
+		left: 0;
+		top: 0;
+		z-index: 99;
 		box-sizing: border-box;
 		width:100%;
 		padding: 0 40rpx;
 		height: 152rpx;
 		background-color: #3753BB;
-		position: relative;
 		display: flex;
 	}
 	.personInfo .step {

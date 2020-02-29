@@ -100,6 +100,7 @@
 		vertical-align: middle;
 	}
 	.hello {
+		box-sizing: border-box;
 		width: 100%;
 		background-color: #f5f5f5;
 	}
@@ -127,6 +128,7 @@
 		box-shadow: rgba(0,0,0,.15) 0 0 20rpx;
 	}
 	.mainTop .name {
+		box-sizing: border-box;
 		position: absolute;
 		left: 0;
 		top:90rpx;

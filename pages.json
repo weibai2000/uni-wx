@@ -19,33 +19,36 @@
 		"path" : "pages/main/personInfo",
 		"style" : {
 			"navigationBarTitleText": "确认基本信息"
-		}
+		},
+		"enablePullDownRefresh": false
 	},{
 		"path" : "pages/main/editPerson",
 		"style" : {
 			"navigationBarTitleText": "修改基本信息"
-		}
+		},
+		"enablePullDownRefresh": false
 	},{
 		"path" : "pages/main/uploadInfo",
 		"style" : {
 			"navigationBarTitleText": "上报排查信息"
-		}
+		},
+		"enablePullDownRefresh": false
 	}
     ],
 	"tabBar": {
-		"color": "#7a7e83",
-		"selectedColor": "#0faeff",
+		"color": "#8a8a8a",
+		"selectedColor": "#1032b5",
 		"backgroundColor": "#ffffff",
 		"list": [{
 			"pagePath": "pages/main/main",
 			"text": "任务列表",
-			"iconPath": "static/img/home.png",
-			"selectedIconPath": "static/img/homeHL.png"
+			"iconPath": "static/img/icon1.png",
+			"selectedIconPath": "static/img/icon1-active.png"
 		}, {
 			"pagePath": "pages/user/user",
 			"text": "统计分析",
-			"iconPath": "static/img/user.png",
-			"selectedIconPath": "static/img/userHL.png"
+			"iconPath": "static/img/icon2.png",
+			"selectedIconPath": "static/img/icon2-active.png"
 		}]
 	},
 	"globalStyle": {

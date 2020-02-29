@@ -53,12 +53,12 @@
 <script>
 	export default {
 		onLoad(options) {
-			this.patientId = options.patientId;
+		// 	this.patientId = options.patientId;
 			this.getUserInfo(this.patientId);
 		},
 		data() {
 			return {
-				patientId:"",
+				patientId:"1",
 				patientInfo:"",
 				//是否是修改状态 默认为false不修改，点击修改则是true修改
 				modifyFlag:false,
@@ -246,14 +246,19 @@
 	.personInfoContain {
 		width: 100%;
 		background-color: #f5f5f5;
+		padding-top: 152rpx;
 	}
 	.personInfo {
+		position: fixed;
+		left: 0;
+		top: 0;
+		z-index: 99;
+		width:100%;
 		box-sizing: border-box;
 		width:100%;
 		padding: 0 40rpx;
 		height: 152rpx;
 		background-color: #3753BB;
-		position: relative;
 		display: flex;
 	}
 	.personInfo .step {

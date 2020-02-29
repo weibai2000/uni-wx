@@ -15,7 +15,7 @@ const app = new Vue({
 })
 app.$mount()
 
-// Vue.prototype.siteBaseUrl="http://10.3.69.25:8080/";
+//Vue.prototype.siteBaseUrl="http://10.3.69.25:8080/";
 Vue.prototype.siteBaseUrl="https://hcbd.chutianyun.gov.cn/";
 
 Vue.prototype.sendRequest = function(param){
