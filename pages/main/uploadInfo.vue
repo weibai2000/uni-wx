@@ -38,9 +38,9 @@
 				<view class="label">
 					<text>*</text>
 					上报时的定位
-					<image src="../../static/img/sync.png"></image>
+					<image @tap="getLocationInfo()" src="../../static/img/sync.png"></image>
 				</view>
-				<input v-model="patientInfo.reportingPosition"></input>
+				<input v-model="patientInfo.reportingPosition" disabled="disabled"></input>
 			</view>
 		</view>
 		<view class="submitBtn">
@@ -51,10 +51,15 @@
 </template>
 
 <script>
+	// import amap from '../../static/common/amap-wx.js';
 	export default {
 		onLoad(options) {
-		// 	this.patientId = options.patientId;
+			this.patientId = options.patientId;
 			this.getUserInfo(this.patientId);
+			// this.amapPlugin = new amap.AMapWX({  
+			// 	key: this.key  
+			// });
+			// this.getRegeo();
 		},
 		data() {
 			return {
@@ -77,9 +82,24 @@
 				],
 				typeVal: '', //该条数据用来传值
 				statusVal: ''
+				// amapPlugin: null,
+				// key: 'd2feaf3877991880dd8d092316c81e0d'
 			}
 		},
 		methods: {
+			getRegeo() { 
+				var that = this;
+				uni.showLoading({  
+					title: '获取位置信息中'  
+				});  
+				that.amapPlugin.getRegeo({  
+					success: (data) => {  
+						console.log(data)  
+						that.patientInfo.reportingPosition = data[0].name;
+						uni.hideLoading();  
+					}  
+				});  
+			},
 			getUserInfo(patientId){
 				let that = this;
 				that.sendRequest({
@@ -112,6 +132,7 @@
 					})
 					return;
 				}
+				this.getLocationInfo();
 				let that = this;
 				console.log(that.patientInfo);
 				that.sendRequest({
@@ -204,11 +225,13 @@
 				})
 			},
 			// 获取地理位置
-			getLocationInfo(){  
+			getLocationInfo(){
+				let that = this;
 				uni.getLocation({
 					type: 'wgs84',
 					success (res) {
-						console.log(res);
+						that.patientInfo.reportingPosition = "(经度："+res.longitude+"，纬度："+res.latitude+")";
+						console.log(that.patientInfo.reportingPosition);
 					}
 				});
 			},

@@ -34,10 +34,10 @@
 					<view class="label">确诊上报单位</view>
 					<input v-model="patientInfo.superioLeader"></input>
 				</view>
-				<view class="formItem">
+				<!-- <view class="formItem">
 					<view class="label">现可能地址坐标</view>
 					<input v-model="patientInfo.nowPosition"></input>
-				</view>
+				</view> -->
 			</view>
 			<view>
 				<button class="submitBtn" @tap="submitInfo()">确认修改</button>

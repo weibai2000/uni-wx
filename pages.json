@@ -33,8 +33,7 @@
 			"navigationBarTitleText": "上报排查信息"
 		},
 		"enablePullDownRefresh": false
-	}
-    ],
+	}],
 	"tabBar": {
 		"color": "#8a8a8a",
 		"selectedColor": "#1032b5",

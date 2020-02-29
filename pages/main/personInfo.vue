@@ -20,13 +20,14 @@
 			<view><text>证件号码</text><text>{{patientInfo.idNum}}</text></view>
 		</view>
 		<view class="personInfoList">
+			<view><text>患者类型</text><text>{{patientInfo.checkStatusStr}}</text></view>
 			<view><text>现可能地址</text><text>{{patientInfo.nowAddress}}</text></view>
 			<view><text>确诊上报单位</text><text>{{patientInfo.superioLeader}}</text></view>
-			<view><text>现可能地址坐标</text><text>{{patientInfo.nowPosition}}</text></view>
+			<!-- <view><text>现可能地址坐标</text><text>{{patientInfo.nowPosition}}</text></view> -->
 		</view>
 		<view class="personInfoBtn">
 			<button class="primaryBtn" @tap="goUpload(patientId)">确认信息无误</button>
-			<button class="defaultBtn" @tap="isLost()">人员失联</button>
+			<button class="primaryBtn" @tap="isLost()">人员失联</button>
 		</view>
 	</view>
 </template>
@@ -143,9 +144,9 @@
 		height: 70rpx;
 		line-height: 70rpx;
 		text-align: right;
-		font-size: 28rpx;
+		font-size: 32rpx;
 		color:#1c70c9;
-		padding:0 40rpx;
+		padding:5rpx 40rpx;
 		background-color: #f5f5f5;
 	}
 	.personInfoList {
@@ -161,7 +162,7 @@
 		border-bottom: 1rpx solid #e5e5e5;
 	}
 	.personInfoList>view text:first-child {
-		font-size: 24rpx;
+		font-size: 32rpx;
 		color:#555;
 	}
 	.personInfoList>view text:last-child {
@@ -189,6 +190,7 @@
 		height: 80rpx;
 		line-height: 80rpx;
 		text-align: center;
+		font-size: 32rpx;
 		color:#555;
 		border: 1rpx solid #e5e5e5;
 	}
